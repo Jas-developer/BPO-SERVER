@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import User from "../model/user.js";
-
+import jwt from "jsonwebtoken";
 /*
 POST
 SIGNING UP A USER
@@ -36,4 +36,40 @@ const SignUp = async (req, res) => {
   }
 };
 
-export { SignUp };
+/*
+desc: LOGIN THE USER 
+POSR REQUESR
+*/
+
+const Login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      res.status(401).json({ error: "Invalid Credintials" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, "softwareengineer23", {
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: token,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { SignUp, Login };

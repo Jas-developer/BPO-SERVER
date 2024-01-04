@@ -9,8 +9,8 @@ app.use(express.json());
 app.use(cors());
 connectDB();
 
-app.route("/users", UserRouter);
-app.route("/admin", AdminRouter);
+app.use("/users", UserRouter);
+app.use("/admin", AdminRouter);
 
 app.listen(5000, () => {
   console.log("Express is listening to port 5000");
