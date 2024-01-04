@@ -40,6 +40,29 @@ ADMIN LOGIN CONTROLLER
 */
 
 const Login = async (req, res) => {
-    
+  try {
+    const { email, password } = req.body;
+    const admin = await findOne({ email });
+    if (!admin) {
+      res.status(404).json({
+        error: "Admin not exist",
+      });
+    }
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    const token = jwt.sign({ userId: admin._id }, "softwareengineer23", {
+      expiresIn: "1h",
+    });
+
+    if (isMatch) {
+      res.status(200).json({
+        name: admin.name,
+        email: admin.email,
+        token: token,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
-export { SignUp };
+export { SignUp, Login };
