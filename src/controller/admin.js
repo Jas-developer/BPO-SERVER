@@ -1,4 +1,4 @@
-import Admin from "../model/admin";
+import Admin from "../model/admin.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -42,7 +42,7 @@ ADMIN LOGIN CONTROLLER
 const Login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const admin = await findOne({ email });
+    const admin = await Admin.findOne({ email });
     if (!admin) {
       res.status(404).json({
         error: "Admin not exist",
@@ -65,4 +65,10 @@ const Login = async (req, res) => {
     console.log(error);
   }
 };
+
+/*
+desc POST
+desc POST
+*/
+
 export { SignUp, Login };
