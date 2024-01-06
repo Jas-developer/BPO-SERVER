@@ -214,5 +214,53 @@ const deleteJob = async (req, res) => {
 };
 
 // update a job
+const updateJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // sent by client
+    const { jobId, title, salary, requirements, image, description } = req.body;
 
-export { SignUp, Login, createJob, createAdminProfile, getAdmin, deleteJob };
+    // find the admin
+    const admin = await Admin.findById(id);
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found",
+      });
+    }
+
+    // check if the job is comming from the admin
+    if (admin.jobs.includes(jobId)) {
+      // getting the job
+      const job = await Jobs.findById(jobId);
+      if (!job) {
+        return res.status(404).json({
+          message: "Jobs not found",
+        });
+      }
+      //update the job
+      if (title) {
+        job.title = title;
+      } else if (salary) {
+        job.salary = salary;
+      } else if (requirements) {
+        job.requirements = requirements;
+      }
+
+      await job.save();
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+export {
+  SignUp,
+  Login,
+  createJob,
+  createAdminProfile,
+  getAdmin,
+  deleteJob,
+  updateJob,
+};
