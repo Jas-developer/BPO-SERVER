@@ -127,4 +127,7 @@ const createJob = async (req, res) => {
   }
 };
 
+//create an admin profile
+const createAdminProfile = async () => {};
+
 export { SignUp, Login, createJob };
