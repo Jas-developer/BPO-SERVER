@@ -7,6 +7,7 @@ import multer from "multer";
 import { createJob } from "./src/controller/admin.js";
 import { verifyToken } from "./src/middleware/auth.js";
 import bodyParser from "body-parser";
+import { createAdminProfile } from "./src/controller/admin.js";
 // express server
 const app = express();
 app.use(express.json());
@@ -31,6 +32,12 @@ app.patch(
   upload.single("file"),
   verifyToken,
   createJob
+);
+app.patch(
+  "/admin/:id/create/profile",
+  upload.single("file"),
+  verifyToken,
+  createAdminProfile
 );
 
 // Serve uploaded files statically from '/uploads' path

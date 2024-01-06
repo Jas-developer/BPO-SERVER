@@ -7,6 +7,7 @@ const jobSchema = new mongoose.Schema({
   image: String,
   imagePath: String,
   discription: String,
+  applicantsId: [String],
 });
 
 const Jobs = mongoose.model("Jobs", jobSchema);

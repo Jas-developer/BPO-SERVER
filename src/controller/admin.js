@@ -90,14 +90,14 @@ const createJob = async (req, res) => {
       });
     }
 
-    if (!title || !salary || !requirements || !image) {
+    if (!title || !salary || !requirements || !image || !description) {
       return res.status(400).json({
         message: "All fields are required",
       });
     }
 
     // Modify the filename in the frontend to make them the same with the title to access the image path
-    const imagePath = `public/uploads/${image}`; // Correcting the imagePath
+    const imagePath = `public/uploads/${image}`;
 
     // Create the job object
     const newJob = {
@@ -128,6 +128,91 @@ const createJob = async (req, res) => {
 };
 
 //create an admin profile
-const createAdminProfile = async () => {};
+const createAdminProfile = async (req, res) => {
+  try {
+    const { image, phone, age, position } = req.body;
+    const { id } = req.params;
+    const admin = await Admin.findById(id);
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found",
+      });
+    }
 
-export { SignUp, Login, createJob };
+    admin.profile = {
+      name: admin.name,
+      image: image,
+      email: admin.email,
+      phone: phone,
+      age: age,
+      position: position,
+      imagePath: `public/uploads/${image}`,
+    };
+
+    await admin.save();
+
+    return res.status(201).json(admin);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+// get the info of admin
+const getAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const admin = await Admin.findById(id);
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found",
+      });
+    }
+
+    return res.status(200).json(admin);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+//delete a job
+const deleteJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { jobId } = req.body;
+    const admin = await Admin.findById(id);
+    if (!admin) {
+      res.status(404).json({
+        message: "Admin not found",
+      });
+    }
+
+    if (!jobId) {
+      return res.status(404).json({
+        message: "Field are required",
+      });
+    }
+    const ifJobExist = await Jobs.findById(jobId);
+    if (!ifJobExist) {
+      return res.status(400).json({
+        message: "Job already deleted",
+      });
+    }
+    const filteredJobs = admin.jobs.filter((job) => job !== jobId);
+    admin.jobs = filteredJobs;
+    await admin.save();
+
+    await Jobs.findByIdAndDelete(jobId);
+    const jobs = await Jobs.find();
+    return res.status(201).json(jobs);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+// update a job
+
+export { SignUp, Login, createJob, createAdminProfile, getAdmin, deleteJob };
