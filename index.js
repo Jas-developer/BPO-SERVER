@@ -40,7 +40,7 @@ app.patch(
   createAdminProfile
 );
 app.put(
-  "/admin/:id/jobs/update",
+  "/admin/:id/jobs/:jobId/update",
   verifyToken,
   upload.single("file"),
   updateJob

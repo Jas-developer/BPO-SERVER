@@ -2,6 +2,7 @@ import Admin from "../model/admin.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Jobs from "../model/jobs.js";
+import User from "../model/user.js";
 
 /*
 @desc SIGN UP 
@@ -216,9 +217,9 @@ const deleteJob = async (req, res) => {
 // update a job
 const updateJob = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id, jobId } = req.params;
     // sent by client
-    const { jobId, title, salary, requirements, image, discription } = req.body;
+    const { title, salary, requirements, image, discription } = req.body;
 
     // find the admin
     const admin = await Admin.findById(id);
@@ -254,6 +255,56 @@ const updateJob = async (req, res) => {
   }
 };
 
+const getApplicants = async (req, res) => {
+  try {
+    const { id, jobId } = req.params;
+    // get the admin
+    const admin = await Admin.findById(id);
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found",
+      });
+    }
+
+    // now check if the job  is from the admin
+    if (admin.job.includes(jobId)) {
+      const job = await Jobs.findById(jobId);
+      const Applicants = await Promise.all(
+        job.applicantsId.map((applicant) => User.findById(applicant))
+      );
+
+      const formattedApplicants = Applicants.map(({ information }) => {
+        const {
+          name,
+          age,
+          address,
+          education,
+          experience,
+          course,
+          skills,
+          resume,
+        } = information;
+
+        return {
+          name,
+          age,
+          address,
+          education,
+          experience,
+          course,
+          skills,
+          resume,
+        };
+      });
+      return res.status(200).json(job, formattedApplicants);
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
 export {
   SignUp,
   Login,
@@ -262,4 +313,5 @@ export {
   getAdmin,
   deleteJob,
   updateJob,
+  getApplicants,
 };
