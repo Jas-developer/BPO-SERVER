@@ -218,7 +218,7 @@ const updateJob = async (req, res) => {
   try {
     const { id } = req.params;
     // sent by client
-    const { jobId, title, salary, requirements, image, description } = req.body;
+    const { jobId, title, salary, requirements, image, discription } = req.body;
 
     // find the admin
     const admin = await Admin.findById(id);
@@ -232,21 +232,20 @@ const updateJob = async (req, res) => {
     if (admin.jobs.includes(jobId)) {
       // getting the job
       const job = await Jobs.findById(jobId);
-      if (!job) {
-        return res.status(404).json({
-          message: "Jobs not found",
-        });
-      }
-      //update the job
-      if (title) {
-        job.title = title;
-      } else if (salary) {
-        job.salary = salary;
-      } else if (requirements) {
-        job.requirements = requirements;
-      }
+      //  update the job
+      job = {
+        title: title !== undefined ? title : job.title,
+        salary: salary !== undefined ? salary : job.salary,
+        requirements:
+          requirements !== undefined ? requirements : job.requirements,
+        image: image !== undefined ? image : job.image,
+        discription: discription !== undefined ? discription : job.discription,
+        imagePath:
+          image !== undefined ? `public/uploads/${image}` : job.imagePath,
+      };
 
       await job.save();
+      return res.status(201).json(job);
     }
   } catch (error) {
     return res.status(500).json({
