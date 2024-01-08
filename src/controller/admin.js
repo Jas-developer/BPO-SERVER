@@ -13,9 +13,10 @@ const SignUp = async (req, res) => {
     const { name, email, password } = req.body;
     const ifExist = await Admin.findOne({ email });
     if (ifExist) {
-      res.status(200).json({ error: "Admin already exist" });
+      return res.status(200).json({ error: "Admin already exists" });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await Admin.create({
@@ -25,14 +26,11 @@ const SignUp = async (req, res) => {
     });
 
     if (user) {
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        password: user.password,
-      });
+      return res.status(201).json(user);
     }
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
